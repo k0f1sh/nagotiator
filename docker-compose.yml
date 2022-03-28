@@ -1,0 +1,9 @@
+version: '3'
+services:
+  nagios:
+    image: jasonrivers/nagios:latest
+    ports:
+    - "8080:80"
+    volumes:
+    - ./docker/etc:/opt/nagios/etc/
+    - ./docker/var:/opt/nagios/var/
