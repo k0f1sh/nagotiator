@@ -20,14 +20,10 @@ async fn handler(Extension(state): Extension<Arc<State>>) -> String {
         let mut nagrs = state.nagrs.lock().unwrap();
         host = match nagrs.find_host("localhost") {
             Ok(host) => host,
-            Err(_) => {
-                nagrs.load().unwrap();
-                nagrs.find_host("localhost").unwrap()
-            }
+            Err(_) => return "nagrs error".to_string(),
         };
     }
 
-    std::thread::sleep(std::time::Duration::from_secs(10));
     format!("{:#?}", host)
 }
 
@@ -37,6 +33,7 @@ async fn main() {
         nagrs: Mutex::new(Nagrs::new(
             "./docker/var/rw/nagios.cmd".to_string(),
             "./docker/var/status.dat".to_string(),
+            10,
         )),
     });
 
