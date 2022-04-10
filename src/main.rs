@@ -1,48 +1,16 @@
 use std::sync::Arc;
-use std::sync::Mutex;
 
-use axum::{
-    extract::{self, Extension},
-    routing::get,
-    Router,
-};
-use nagrs::nagios::Host;
-
-type Nagrs = nagrs::Nagrs<String>;
-
-struct State {
-    nagrs: Mutex<Nagrs>,
-}
-
-async fn handler(Extension(state): Extension<Arc<State>>) -> String {
-    let host: Option<Host>;
-    {
-        let mut nagrs = state.nagrs.lock().unwrap();
-        host = match nagrs.find_host("localhost") {
-            Ok(host) => host,
-            Err(_) => return "nagrs error".to_string(),
-        };
-    }
-
-    format!("{:#?}", host)
-}
+use axum::{extract::Extension, routing::get, Router};
+use nagotiator::{handlers, state::State};
 
 #[tokio::main]
 async fn main() {
-    let state = Arc::new(State {
-        nagrs: Mutex::new(Nagrs::new(
-            "./docker/var/rw/nagios.cmd".to_string(),
-            "./docker/var/status.dat".to_string(),
-            10,
-        )),
-    });
+    let state: Arc<State> = Arc::new(State::new());
 
-    // build our application with a single route
     let app = Router::new()
-        .route("/", get(handler))
+        .route("/", get(handlers::top::handler))
         .layer(Extension(state));
 
-    // run it with hyper on localhost:3000
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
         .await
