@@ -10,6 +10,10 @@ async fn main() {
     let app = Router::new()
         .route("/", get(handlers::top::handler))
         .route("/hosts/:host_name_regex", get(handlers::hosts::handler))
+        .route(
+            "/services/:host_name_regex",
+            get(handlers::services::handler),
+        )
         .layer(Extension(state));
 
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
