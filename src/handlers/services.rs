@@ -1,3 +1,5 @@
+use crate::schema::services::Response;
+use crate::schema::services::ServiceResponse;
 use axum::{
     extract::{Extension, Path},
     Json,
@@ -11,11 +13,11 @@ use nagrs::nagios::{NagiosError, Service};
 pub async fn handler(
     Path(host_name_regex): Path<String>,
     Extension(state): Extension<Arc<State>>,
-) -> Json<ServicesResponse> {
+) -> Json<Response> {
     let re = Regex::new(&host_name_regex);
     if re.is_err() {
         // TODO logging
-        return Json(ServicesResponse::Error("invalid regex".to_string()));
+        return Json(Response::Error("invalid regex".to_string()));
     }
 
     let services: Vec<ServiceResponse>;
@@ -24,7 +26,7 @@ pub async fn handler(
         match nagrs.find_hosts_regex(&re.unwrap()) {
             Err(_) => {
                 // TODO logging
-                return Json(ServicesResponse::Error("nagrs error".to_string()));
+                return Json(Response::Error("nagrs error".to_string()));
             }
             Ok(hosts) => {
                 let services_list = hosts
@@ -36,7 +38,7 @@ pub async fn handler(
                 match services_list {
                     Err(_) => {
                         // TODO logging
-                        return Json(ServicesResponse::Error("nagrs error".to_string()));
+                        return Json(Response::Error("nagrs error".to_string()));
                     }
                     Ok(services_list) => {
                         services = services_list
@@ -50,34 +52,5 @@ pub async fn handler(
         };
     }
 
-    Json(ServicesResponse::Result(services))
-}
-
-#[derive(serde::Serialize)]
-pub enum ServicesResponse {
-    Result(Vec<ServiceResponse>),
-    Error(String),
-}
-
-#[derive(serde::Serialize)]
-pub struct ServiceResponse {
-    host_name: String,
-    service_description: String,
-    notifications_enabled: bool,
-    active_checks_enabled: bool,
-    passive_checks_enabled: bool,
-    check_command: String,
-}
-
-impl From<Service> for ServiceResponse {
-    fn from(input: Service) -> Self {
-        ServiceResponse {
-            host_name: input.host_name,
-            service_description: input.service_description,
-            notifications_enabled: input.notifications_enabled,
-            active_checks_enabled: input.active_checks_enabled,
-            passive_checks_enabled: input.passive_checks_enabled,
-            check_command: input.check_command,
-        }
-    }
+    Json(Response::Result(services))
 }
