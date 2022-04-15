@@ -36,4 +36,12 @@ where
     pub fn error(status_code: StatusCode, error_message: String) -> Self {
         Self::Error(status_code, error_message)
     }
+
+    pub fn internal_server_error(error_message: String) -> Self {
+        Self::Error(StatusCode::INTERNAL_SERVER_ERROR, error_message)
+    }
+
+    pub fn bad_request(error_message: String) -> Self {
+        Self::Error(StatusCode::BAD_REQUEST, error_message)
+    }
 }

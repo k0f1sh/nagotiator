@@ -1,7 +1,4 @@
-use axum::{
-    extract::{Extension, Path},
-    http::StatusCode,
-};
+use axum::extract::{Extension, Path};
 use regex::Regex;
 use std::sync::Arc;
 
@@ -18,7 +15,7 @@ pub async fn handler(
     let re = Regex::new(&host_name_regex);
     if re.is_err() {
         // TODO logging
-        return AppResponse::error(StatusCode::BAD_REQUEST, "invalid regex".to_string());
+        return AppResponse::bad_request("invalid regex".to_string());
     }
 
     let services: Services;
@@ -27,8 +24,7 @@ pub async fn handler(
         match nagrs.find_hosts_regex(&re.unwrap()) {
             Err(_) => {
                 // TODO logging
-                return AppResponse::error(
-                    StatusCode::INTERNAL_SERVER_ERROR,
+                return AppResponse::internal_server_error(
                     "nagios status loading error".to_string(),
                 );
             }
@@ -42,8 +38,7 @@ pub async fn handler(
                 match services_list {
                     Err(_) => {
                         // TODO logging
-                        return AppResponse::error(
-                            StatusCode::INTERNAL_SERVER_ERROR,
+                        return AppResponse::internal_server_error(
                             "nagios status loading error".to_string(),
                         );
                     }

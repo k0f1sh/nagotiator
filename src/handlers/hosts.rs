@@ -1,8 +1,5 @@
 use crate::schema::{base::AppResponse, hosts::Hosts};
-use axum::{
-    extract::{Extension, Path},
-    http::StatusCode,
-};
+use axum::extract::{Extension, Path};
 use regex::Regex;
 use std::sync::Arc;
 
@@ -15,7 +12,7 @@ pub async fn handler(
     let re = Regex::new(&host_name_regex);
     if re.is_err() {
         // TODO logging
-        return AppResponse::error(StatusCode::BAD_REQUEST, "invalid regex".to_string());
+        return AppResponse::bad_request("invalid regex".to_string());
     }
 
     let hosts: Hosts;
@@ -25,8 +22,7 @@ pub async fn handler(
             Ok(hosts) => hosts.into_iter().map(|host| host.into()).collect(),
             Err(_) => {
                 // TODO logging
-                return AppResponse::error(
-                    StatusCode::INTERNAL_SERVER_ERROR,
+                return AppResponse::internal_server_error(
                     "nagios status loading error".to_string(),
                 );
             }

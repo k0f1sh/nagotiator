@@ -1,5 +1,5 @@
 use crate::schema::{base::AppResponse, top::NagiosInfo};
-use axum::{extract::Extension, http::StatusCode};
+use axum::extract::Extension;
 use std::sync::Arc;
 
 use crate::state::State;
@@ -8,7 +8,7 @@ pub async fn handler(Extension(state): Extension<Arc<State>>) -> AppResponse<Nag
     {
         let mut nagrs = state.nagrs.lock().unwrap();
         match nagrs.get_info() {
-            Err(_) => AppResponse::error(StatusCode::INTERNAL_SERVER_ERROR, "error".to_string()),
+            Err(_) => AppResponse::internal_server_error("error".to_string()),
             Ok(info) => AppResponse::success(info),
         }
     }
