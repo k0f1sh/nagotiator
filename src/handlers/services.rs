@@ -1,32 +1,36 @@
-use crate::schema::services::Response;
-use crate::schema::services::ServiceResponse;
 use axum::{
     extract::{Extension, Path},
-    Json,
+    http::StatusCode,
 };
 use regex::Regex;
 use std::sync::Arc;
 
-use crate::state::State;
+use crate::{
+    schema::{base::AppResponse, services::Services},
+    state::State,
+};
 use nagrs::nagios::{NagiosError, Service};
 
 pub async fn handler(
     Path(host_name_regex): Path<String>,
     Extension(state): Extension<Arc<State>>,
-) -> Json<Response> {
+) -> AppResponse<Services> {
     let re = Regex::new(&host_name_regex);
     if re.is_err() {
         // TODO logging
-        return Json(Response::Error("invalid regex".to_string()));
+        return AppResponse::error(StatusCode::BAD_REQUEST, "invalid regex".to_string());
     }
 
-    let services: Vec<ServiceResponse>;
+    let services: Services;
     {
         let mut nagrs = state.nagrs.lock().unwrap();
         match nagrs.find_hosts_regex(&re.unwrap()) {
             Err(_) => {
                 // TODO logging
-                return Json(Response::Error("nagrs error".to_string()));
+                return AppResponse::error(
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "nagios status loading error".to_string(),
+                );
             }
             Ok(hosts) => {
                 let services_list = hosts
@@ -38,7 +42,10 @@ pub async fn handler(
                 match services_list {
                     Err(_) => {
                         // TODO logging
-                        return Json(Response::Error("nagrs error".to_string()));
+                        return AppResponse::error(
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            "nagios status loading error".to_string(),
+                        );
                     }
                     Ok(services_list) => {
                         services = services_list
@@ -52,5 +59,5 @@ pub async fn handler(
         };
     }
 
-    Json(Response::Result(services))
+    AppResponse::success(services)
 }

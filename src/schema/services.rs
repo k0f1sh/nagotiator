@@ -1,13 +1,9 @@
-use nagrs::nagios::Service;
+use nagrs::nagios::Service as NagrsService;
+
+pub type Services = Vec<Service>;
 
 #[derive(serde::Serialize)]
-pub enum Response {
-    Result(Vec<ServiceResponse>),
-    Error(String),
-}
-
-#[derive(serde::Serialize)]
-pub struct ServiceResponse {
+pub struct Service {
     host_name: String,
     service_description: String,
     notifications_enabled: bool,
@@ -16,9 +12,9 @@ pub struct ServiceResponse {
     check_command: String,
 }
 
-impl From<Service> for ServiceResponse {
-    fn from(input: Service) -> Self {
-        ServiceResponse {
+impl From<NagrsService> for Service {
+    fn from(input: NagrsService) -> Self {
+        Service {
             host_name: input.host_name,
             service_description: input.service_description,
             notifications_enabled: input.notifications_enabled,
