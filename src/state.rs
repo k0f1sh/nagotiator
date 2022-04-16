@@ -7,12 +7,12 @@ pub struct State {
 }
 
 impl State {
-    pub fn new() -> State {
+    pub fn new(command_file_path: &str, status_file_path: &str, max_cache_sec: usize) -> State {
         State {
             nagrs: Mutex::new(Nagrs::new(
-                "./docker/var/rw/nagios.cmd".to_string(),
-                "./docker/var/status.dat".to_string(),
-                10,
+                command_file_path.to_string(),
+                status_file_path.to_string(),
+                max_cache_sec,
             )),
         }
     }

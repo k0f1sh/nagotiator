@@ -1,11 +1,32 @@
 use std::sync::Arc;
 
 use axum::{extract::Extension, routing::get, Router};
+use clap::Parser;
 use nagotiator::{handlers, state::State};
+
+#[derive(Parser, Debug)]
+#[clap(author, version, about, long_about = None)]
+struct Args {
+    /// path of nagios.cmd
+    #[clap(short, long)]
+    command_file_path: String,
+
+    /// path of status.dat
+    #[clap(short, long)]
+    status_file_path: String,
+
+    #[clap(short, long, default_value_t = 10)]
+    max_cache_sec: usize,
+}
 
 #[tokio::main]
 async fn main() {
-    let state: Arc<State> = Arc::new(State::new());
+    let args = Args::parse();
+    let state: Arc<State> = Arc::new(State::new(
+        &args.command_file_path,
+        &args.status_file_path,
+        args.max_cache_sec,
+    ));
 
     let app = Router::new()
         .route("/", get(handlers::top::handler))
