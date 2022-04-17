@@ -1,8 +1,8 @@
-# Nagotiator(WIP)
+# Nagotiator (WIP)
 
 Nagotiator is a frontend server for nagios.
 
-## features
+## Features
 
 - Find hosts and services from "status.dat" file by host_name
 - Can be enabled/disabled:

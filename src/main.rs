@@ -7,11 +7,11 @@ use nagotiator::{handlers, state::State};
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
 struct Args {
-    /// path of nagios.cmd
+    /// nagios.cmd path
     #[clap(short, long)]
     command_file_path: String,
 
-    /// path of status.dat
+    /// status.dat path
     #[clap(short, long)]
     status_file_path: String,
 
