@@ -2,17 +2,17 @@ use nagrs::nagios::Service as NagrsService;
 
 pub type Services = Vec<Service>;
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct Service {
-    host_name: String,
-    check_command: String,
-    service_description: String,
-    active_checks_enabled: bool,
-    passive_checks_enabled: bool,
-    obsess: bool,
-    event_handler_enabled: bool,
-    flap_detection_enabled: bool,
-    notifications_enabled: bool,
+    pub host_name: String,
+    pub check_command: String,
+    pub service_description: String,
+    pub active_checks_enabled: bool,
+    pub passive_checks_enabled: bool,
+    pub obsess: bool,
+    pub event_handler_enabled: bool,
+    pub flap_detection_enabled: bool,
+    pub notifications_enabled: bool,
 }
 
 impl From<NagrsService> for Service {

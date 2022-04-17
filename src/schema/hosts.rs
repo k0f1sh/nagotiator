@@ -2,14 +2,14 @@ use nagrs::nagios::Host as NagrsHost;
 
 pub type Hosts = Vec<Host>;
 
-#[derive(serde::Serialize)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Host {
-    host_name: String,
-    notifications_enabled: bool,
-    active_checks_enabled: bool,
-    obsess: bool,
-    event_handler_enabled: bool,
-    flap_detection_enabled: bool,
+    pub host_name: String,
+    pub notifications_enabled: bool,
+    pub active_checks_enabled: bool,
+    pub obsess: bool,
+    pub event_handler_enabled: bool,
+    pub flap_detection_enabled: bool,
 }
 
 impl From<NagrsHost> for Host {
