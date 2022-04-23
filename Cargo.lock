@@ -407,6 +407,7 @@ dependencies = [
 [[package]]
 name = "nagrs"
 version = "0.1.0"
+source = "git+https://github.com/k0f1sh/nagrs?branch=main#5d209f4d47d144dfb7a8e16aa3d68c498e27ed1a"
 dependencies = [
  "anyhow",
  "chrono",
