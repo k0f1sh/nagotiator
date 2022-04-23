@@ -6,7 +6,7 @@ use crate::{
     schema::{base::AppResponse, services::Services},
     state::State,
 };
-use nagrs::nagios::{NagiosError, Service};
+use nagrs::nagios::object::Service;
 
 pub async fn handler(
     Path(host_name_regex): Path<String>,
@@ -33,7 +33,7 @@ pub async fn handler(
                     .into_iter()
                     .map(|host| host.host_name)
                     .map(|host_name| nagrs.find_services(host_name.as_str()))
-                    .collect::<Result<Vec<Vec<Service>>, NagiosError>>();
+                    .collect::<Result<Vec<Vec<Service>>, _>>();
 
                 match services_list {
                     Err(_) => {
