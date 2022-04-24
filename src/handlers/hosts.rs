@@ -11,7 +11,7 @@ pub async fn handler(
 ) -> AppResponse<Hosts> {
     let re = Regex::new(&host_name_regex);
     if re.is_err() {
-        // TODO logging
+        println!("hosts handler error: {:#?}", re.err().unwrap());
         return AppResponse::bad_request("invalid regex".to_string());
     }
 
@@ -20,8 +20,8 @@ pub async fn handler(
         let mut nagrs = state.nagrs.lock().unwrap();
         hosts = match nagrs.find_hosts_regex(&re.unwrap()) {
             Ok(hosts) => hosts.into_iter().map(|host| host.into()).collect(),
-            Err(_) => {
-                // TODO logging
+            Err(err) => {
+                println!("hosts handler error: {:#?}", err);
                 return AppResponse::internal_server_error(
                     "nagios status loading error".to_string(),
                 );

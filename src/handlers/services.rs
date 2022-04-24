@@ -14,7 +14,7 @@ pub async fn handler(
 ) -> AppResponse<Services> {
     let re = Regex::new(&host_name_regex);
     if re.is_err() {
-        // TODO logging
+        println!("services handler error: {:#?}", re.err().unwrap());
         return AppResponse::bad_request("invalid regex".to_string());
     }
 
@@ -22,8 +22,8 @@ pub async fn handler(
     {
         let mut nagrs = state.nagrs.lock().unwrap();
         match nagrs.find_hosts_regex(&re.unwrap()) {
-            Err(_) => {
-                // TODO logging
+            Err(err) => {
+                println!("services handler error: {:#?}", err);
                 return AppResponse::internal_server_error(
                     "nagios status loading error".to_string(),
                 );
@@ -36,8 +36,8 @@ pub async fn handler(
                     .collect::<Result<Vec<Vec<Service>>, _>>();
 
                 match services_list {
-                    Err(_) => {
-                        // TODO logging
+                    Err(err) => {
+                        println!("services handler error: {:#?}", err);
                         return AppResponse::internal_server_error(
                             "nagios status loading error".to_string(),
                         );
