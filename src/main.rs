@@ -1,3 +1,4 @@
+use axum::routing::post;
 use std::sync::Arc;
 
 use axum::{extract::Extension, routing::get, Router};
@@ -37,11 +38,11 @@ async fn main() {
         )
         .route(
             "/cmd/enable_host_notifications/:host_name",
-            get(handlers::cmd::enable_host_notifications::handler),
+            post(handlers::cmd::enable_host_notifications::handler),
         )
         .route(
             "/cmd/disable_host_notifications/:host_name",
-            get(handlers::cmd::disable_host_notifications::handler),
+            post(handlers::cmd::disable_host_notifications::handler),
         )
         .layer(Extension(state));
 
