@@ -1,3 +1,8 @@
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub type NagiosInfo = HashMap<String, String>;
+#[derive(Deserialize, Serialize)]
+pub struct NagiosStatus {
+    pub info: HashMap<String, String>,
+    pub program: HashMap<String, String>,
+}
