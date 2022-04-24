@@ -35,6 +35,14 @@ async fn main() {
             "/services/:host_name_regex",
             get(handlers::services::handler),
         )
+        .route(
+            "/cmd/enable_host_notifications/:host_name",
+            get(handlers::cmd::enable_host_notifications::handler),
+        )
+        .route(
+            "/cmd/disable_host_notifications/:host_name",
+            get(handlers::cmd::disable_host_notifications::handler),
+        )
         .layer(Extension(state));
 
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
