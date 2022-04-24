@@ -17,6 +17,6 @@ cargo run -- -c NAGIOS_CMD_PATH -s NAGIOS_STATUS_DAT_PATH -m MAX_CACHE_SEC
 ```
 
 
-## APIs
+## API
 
 TODO
