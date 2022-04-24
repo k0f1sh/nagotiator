@@ -10,8 +10,9 @@ pub async fn handler(
     Path(host_name): Path<String>,
     Extension(state): Extension<Arc<State>>,
 ) -> AppResponse<()> {
+    // exact match
     let regex_str = format!("^{}$", regex::escape(host_name.as_str()));
-    let re = Regex::new(&regex_str); // exact match
+    let re = Regex::new(&regex_str);
     if re.is_err() {
         println!(
             "disable_host_notifications handler error: {:#?}",
@@ -32,7 +33,7 @@ pub async fn handler(
             Ok(hosts) => {
                 if hosts.len() != 1 {
                     return AppResponse::internal_server_error(format!(
-                        "host \"{}\" does not exists",
+                        "host \"{}\" does not exist",
                         host_name.to_string()
                     ));
                 }
