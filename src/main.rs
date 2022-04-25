@@ -18,6 +18,9 @@ struct Args {
 
     #[clap(short, long, default_value_t = 10)]
     max_cache_sec: usize,
+
+    #[clap(short, long)]
+    bind_address: Option<String>,
 }
 
 #[tokio::main]
@@ -46,8 +49,14 @@ async fn main() {
         )
         .layer(Extension(state));
 
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    axum::Server::bind(
+        &args
+            .bind_address
+            .unwrap_or("0.0.0.0:3000".into())
+            .parse()
+            .unwrap(),
+    )
+    .serve(app.into_make_service())
+    .await
+    .unwrap();
 }
