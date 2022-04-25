@@ -32,7 +32,7 @@ pub async fn handler(
             }
             Ok(hosts) => {
                 if hosts.len() != 1 {
-                    return AppResponse::internal_server_error(format!(
+                    return AppResponse::bad_request(format!(
                         "host \"{}\" does not exist",
                         host_name.to_string()
                     ));
