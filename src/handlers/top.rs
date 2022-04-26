@@ -1,28 +1,21 @@
 use crate::schema::{base::AppResponse, top::NagiosStatus};
+use anyhow::Result;
 use axum::extract::Extension;
 use std::sync::Arc;
 
 use crate::state::State;
 
-pub async fn handler(Extension(state): Extension<Arc<State>>) -> AppResponse<NagiosStatus> {
-    {
-        let mut nagrs = state.nagrs.lock().unwrap();
+use super::base::result_to_app_apesponse_and_logging;
 
-        let info = nagrs.get_info();
-        if info.is_err() {
-            println!("top handler error: {:#?}", info.err().unwrap());
-            return AppResponse::internal_server_error("error".to_string());
-        }
+async fn handle(state: Extension<Arc<State>>) -> Result<NagiosStatus> {
+    let mut nagrs = state.nagrs.lock().unwrap();
 
-        let program = nagrs.get_program();
-        if program.is_err() {
-            println!("top handler error: {:#?}", program.err().unwrap());
-            return AppResponse::internal_server_error("error".to_string());
-        }
+    let info = nagrs.get_info()?;
+    let program = nagrs.get_program()?;
 
-        AppResponse::success(NagiosStatus {
-            info: info.unwrap(),
-            program: program.unwrap(),
-        })
-    }
+    Ok(NagiosStatus { info, program })
+}
+
+pub async fn handler(extension: Extension<Arc<State>>) -> AppResponse<NagiosStatus> {
+    result_to_app_apesponse_and_logging(handle(extension).await)
 }

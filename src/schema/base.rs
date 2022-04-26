@@ -1,47 +1,38 @@
-use axum::Json;
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},
+    Json,
 };
 use serde::Serialize;
+use thiserror::Error;
 
-pub enum AppResponse<S>
-where
-    S: Serialize,
-{
-    Success(S),
-    Error(StatusCode, String),
-}
+#[derive(Debug)]
+pub struct AppResponse<S: Serialize>(pub Result<S, AppError>);
 
-impl<S> IntoResponse for AppResponse<S>
-where
-    S: Serialize,
-{
+impl<S: Serialize> IntoResponse for AppResponse<S> {
     fn into_response(self) -> Response {
-        match self {
-            Self::Success(s) => (StatusCode::OK, Json(s)).into_response(),
-            Self::Error(status_code, error_message) => (status_code, error_message).into_response(),
+        match self.0 {
+            Ok(s) => (StatusCode::OK, Json(s)).into_response(),
+            Err(app_error) => app_error.into_response(),
         }
     }
 }
 
-impl<S> AppResponse<S>
-where
-    S: Serialize,
-{
-    pub fn success(s: S) -> Self {
-        Self::Success(s)
-    }
+#[derive(Error, Debug, Clone)]
+pub enum AppError {
+    #[error("bad request: {0}")]
+    BadRequest(String),
+    #[error("internal server error: {0}")]
+    InternalServerError(String),
+}
 
-    pub fn error(status_code: StatusCode, error_message: String) -> Self {
-        Self::Error(status_code, error_message)
-    }
-
-    pub fn internal_server_error(error_message: String) -> Self {
-        Self::Error(StatusCode::INTERNAL_SERVER_ERROR, error_message)
-    }
-
-    pub fn bad_request(error_message: String) -> Self {
-        Self::Error(StatusCode::BAD_REQUEST, error_message)
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        match self {
+            AppError::BadRequest(s) => (StatusCode::BAD_REQUEST, s).into_response(),
+            AppError::InternalServerError(s) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, s).into_response()
+            }
+        }
     }
 }
