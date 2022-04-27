@@ -21,7 +21,7 @@ async fn handle(
         }
 
         let host = host.unwrap();
-        let cmd = nagrs::nagios::cmd::DisableHostNotifications {
+        let cmd = nagrs::nagios::cmd::DisableHostCheck {
             host_name: host.host_name.to_string(),
         };
         nagrs.write_cmds(&vec![Box::new(cmd)])?;

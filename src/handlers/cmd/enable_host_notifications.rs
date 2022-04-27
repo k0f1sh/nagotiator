@@ -1,7 +1,6 @@
 use anyhow::Result;
 use axum::extract::{Extension, Path};
 use nagrs;
-use regex::Regex;
 use std::sync::Arc;
 
 use crate::{

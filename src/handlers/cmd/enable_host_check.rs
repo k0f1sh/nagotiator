@@ -9,7 +9,7 @@ use crate::{
     state::State,
 };
 
-async fn handle(
+pub async fn handle(
     Path(host_name): Path<String>,
     Extension(state): Extension<Arc<State>>,
 ) -> Result<()> {
@@ -21,7 +21,7 @@ async fn handle(
         }
 
         let host = host.unwrap();
-        let cmd = nagrs::nagios::cmd::DisableHostNotifications {
+        let cmd = nagrs::nagios::cmd::EnableHostCheck {
             host_name: host.host_name.to_string(),
         };
         nagrs.write_cmds(&vec![Box::new(cmd)])?;

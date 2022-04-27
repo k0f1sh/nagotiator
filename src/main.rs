@@ -47,6 +47,14 @@ async fn main() {
             "/cmd/disable_host_notifications/:host_name",
             post(handlers::cmd::disable_host_notifications::handler),
         )
+        .route(
+            "/cmd/enable_host_check/:host_name",
+            post(handlers::cmd::enable_host_check::handler),
+        )
+        .route(
+            "/cmd/disable_host_check/:host_name",
+            post(handlers::cmd::disable_host_check::handler),
+        )
         .layer(Extension(state));
 
     axum::Server::bind(
