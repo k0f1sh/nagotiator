@@ -14,18 +14,14 @@ async fn handle(
     Path(host_name): Path<String>,
     Extension(state): Extension<Arc<State>>,
 ) -> Result<()> {
-    // exact match
-    let regex_str = format!("^{}$", regex::escape(host_name.as_str()));
-    let re = Regex::new(&regex_str)?;
-
     {
         let mut nagrs = state.nagrs.lock().unwrap();
-        let hosts = nagrs.find_hosts_regex(&re)?;
-        if hosts.len() != 1 {
+        let host = nagrs.find_host(host_name.as_str())?;
+        if host.is_none() {
             return Err(AppError::BadRequest("host not found".to_string()).into());
         }
 
-        let host = &hosts[0];
+        let host = host.unwrap();
         let cmd = nagrs::nagios::cmd::DisableHostNotifications {
             host_name: host.host_name.to_string(),
         };
