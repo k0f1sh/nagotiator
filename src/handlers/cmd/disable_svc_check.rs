@@ -20,7 +20,7 @@ pub async fn handle(
         check_host_exists(&mut nagrs, host_name.as_str())?;
         check_service_exists(&mut nagrs, host_name.as_str(), service_description.as_str())?;
 
-        let cmd = nagrs::nagios::cmd::EnableSvcCheck {
+        let cmd = nagrs::nagios::cmd::DisableSvcCheck {
             host_name,
             service_description,
         };
