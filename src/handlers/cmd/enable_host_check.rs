@@ -4,7 +4,7 @@ use nagrs;
 use std::sync::Arc;
 
 use crate::{
-    handlers::base::result_to_app_apesponse_and_logging,
+    handlers::base::result_to_app_response_and_logging,
     schema::base::{AppError, AppResponse},
     state::State,
 };
@@ -31,5 +31,5 @@ pub async fn handle(
 }
 
 pub async fn handler(host_name: Path<String>, extension: Extension<Arc<State>>) -> AppResponse<()> {
-    result_to_app_apesponse_and_logging(handle(host_name, extension).await)
+    result_to_app_response_and_logging(handle(host_name, extension).await)
 }

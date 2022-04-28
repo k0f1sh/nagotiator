@@ -3,7 +3,7 @@ use serde::Serialize;
 
 use crate::schema::base::{AppError, AppResponse};
 
-pub fn result_to_app_apesponse_and_logging<S: Serialize>(s: Result<S>) -> AppResponse<S> {
+pub fn result_to_app_response_and_logging<S: Serialize>(s: Result<S>) -> AppResponse<S> {
     match s {
         Ok(s) => AppResponse(Ok(s)),
         Err(error) => {

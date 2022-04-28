@@ -9,7 +9,7 @@ use crate::{
 };
 use nagrs::nagios::object::Service;
 
-use super::base::result_to_app_apesponse_and_logging;
+use super::base::result_to_app_response_and_logging;
 
 pub async fn handle(
     Path(host_name_regex): Path<String>,
@@ -40,5 +40,5 @@ pub async fn handler(
     host_name_regex: Path<String>,
     extension: Extension<Arc<State>>,
 ) -> AppResponse<Services> {
-    result_to_app_apesponse_and_logging(handle(host_name_regex, extension).await)
+    result_to_app_response_and_logging(handle(host_name_regex, extension).await)
 }
