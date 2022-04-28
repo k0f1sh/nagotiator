@@ -55,6 +55,10 @@ async fn main() {
             "/cmd/disable_host_check/:host_name",
             post(handlers::cmd::disable_host_check::handler),
         )
+        .route(
+            "/cmd/enable_svc_check/:host_name/:service_description",
+            post(handlers::cmd::enable_svc_check::handler),
+        )
         .layer(Extension(state));
 
     axum::Server::bind(

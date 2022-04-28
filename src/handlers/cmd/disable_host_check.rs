@@ -4,10 +4,10 @@ use nagrs;
 use std::sync::Arc;
 
 use crate::{
-    handlers::base::result_to_app_response_and_logging,
-    schema::base::{AppError, AppResponse},
-    state::State,
+    handlers::base::result_to_app_response_and_logging, schema::base::AppResponse, state::State,
 };
+
+use super::check::check_host_exists;
 
 async fn handle(
     Path(host_name): Path<String>,
@@ -15,15 +15,9 @@ async fn handle(
 ) -> Result<()> {
     {
         let mut nagrs = state.nagrs.lock().unwrap();
-        let host = nagrs.find_host(host_name.as_str())?;
-        if host.is_none() {
-            return Err(AppError::BadRequest("host not found".to_string()).into());
-        }
+        check_host_exists(&mut nagrs, host_name.as_str())?;
 
-        let host = host.unwrap();
-        let cmd = nagrs::nagios::cmd::DisableHostCheck {
-            host_name: host.host_name.to_string(),
-        };
+        let cmd = nagrs::nagios::cmd::DisableHostCheck { host_name };
         nagrs.write_cmds(&vec![Box::new(cmd)])?;
     }
 
