@@ -71,6 +71,22 @@ async fn main() {
             "/cmd/disable_svc_notifications/:host_name/:service_description",
             post(handlers::cmd::disable_svc_notifications::handler),
         )
+        .route(
+            "/cmd/enable_host_svc_checks/:host_name",
+            post(handlers::cmd::enable_host_svc_checks::handler),
+        )
+        .route(
+            "/cmd/disable_host_svc_checks/:host_name",
+            post(handlers::cmd::disable_host_svc_checks::handler),
+        )
+        .route(
+            "/cmd/enable_host_svc_notifications/:host_name",
+            post(handlers::cmd::enable_host_svc_notifications::handler),
+        )
+        .route(
+            "/cmd/disable_host_svc_notifications/:host_name",
+            post(handlers::cmd::disable_host_svc_notifications::handler),
+        )
         .layer(Extension(state));
 
     axum::Server::bind(
