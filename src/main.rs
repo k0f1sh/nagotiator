@@ -1,9 +1,13 @@
-use axum::routing::post;
+use axum::{
+    http::{self, Method},
+    routing::post,
+};
 use std::sync::Arc;
 
 use axum::{extract::Extension, routing::get, Router};
 use clap::Parser;
 use nagotiator::{handlers, state::State};
+use tower_http::cors::{Any, CorsLayer};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -21,6 +25,10 @@ struct Args {
 
     #[clap(short, long)]
     bind_address: Option<String>,
+
+    /// comma separated
+    #[clap(short, long)]
+    allow_origins: Option<String>,
 }
 
 #[tokio::main]
@@ -31,6 +39,11 @@ async fn main() {
         &args.status_file_path,
         args.max_cache_sec,
     ));
+
+    let cors = CorsLayer::new()
+        .allow_headers(vec![http::header::CONTENT_TYPE])
+        .allow_methods([Method::GET, Method::POST])
+        .allow_origin(Any); // TODO configurable
 
     let app = Router::new()
         .route("/", get(handlers::top::handler))
@@ -87,7 +100,8 @@ async fn main() {
             "/cmd/disable_host_svc_notifications/:host_name",
             post(handlers::cmd::disable_host_svc_notifications::handler),
         )
-        .layer(Extension(state));
+        .layer(Extension(state))
+        .layer(cors);
 
     axum::Server::bind(
         &args
