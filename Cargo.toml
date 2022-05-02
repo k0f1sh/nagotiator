@@ -15,3 +15,4 @@ nagrs = { git = "https://github.com/k0f1sh/nagrs", branch = "main" }
 anyhow = "1.0.57"
 thiserror = "1.0.30"
 tower-http = { version = "0.3.2", features = ["cors"] }
+chrono = "0.4.19"

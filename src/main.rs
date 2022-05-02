@@ -34,11 +34,21 @@ struct Args {
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-    let state: Arc<State> = Arc::new(State::new(
+
+    let raw_state = State::new(
         &args.command_file_path,
         &args.status_file_path,
         args.max_cache_sec,
-    ));
+    );
+
+    // first load
+    if let Err(error) = raw_state.load() {
+        println!("failed to load status.dat: {}", error);
+    }
+
+    // TODO tick
+
+    let state: Arc<State> = Arc::new(raw_state);
 
     let cors = CorsLayer::new()
         .allow_headers(vec![http::header::CONTENT_TYPE])

@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use axum::extract::{Extension, Path};
 use nagrs;
 use std::sync::Arc;
@@ -14,11 +14,13 @@ pub async fn handle(
     Extension(state): Extension<Arc<State>>,
 ) -> Result<()> {
     {
-        let mut nagrs = state.nagrs.lock().unwrap();
-        check_host_exists(&mut nagrs, host_name.as_str())?;
+        let m = state.cached_state.lock().unwrap();
+        let cached_state = m.as_ref().ok_or(anyhow!("not cached"))?;
+
+        check_host_exists(&cached_state.nagios_status, host_name.as_str())?;
 
         let cmd = nagrs::nagios::cmd::EnableHostNotifications { host_name };
-        nagrs.write_cmds(&vec![Box::new(cmd)])?;
+        state.nagrs.write_cmds(&vec![Box::new(cmd)])?;
     }
 
     Ok(())

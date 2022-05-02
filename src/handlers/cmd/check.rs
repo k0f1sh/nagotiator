@@ -1,12 +1,11 @@
-use std::sync::MutexGuard;
-
 use anyhow::Result;
+use nagrs::nagios::NagiosStatus;
 
-use crate::{schema::base::AppError, state::Nagrs};
+use crate::schema::base::AppError;
 
 // check host exists. if host does not exists, return Err
-pub fn check_host_exists(nagrs: &mut MutexGuard<Nagrs>, host_name: &str) -> Result<()> {
-    let host = nagrs.find_host(host_name)?;
+pub fn check_host_exists(nagios_status: &NagiosStatus, host_name: &str) -> Result<()> {
+    let host = nagios_status.get_host(host_name);
     match host {
         Some(_) => Ok(()),
         None => Err(AppError::BadRequest("host not found".to_string()).into()),
@@ -15,11 +14,11 @@ pub fn check_host_exists(nagrs: &mut MutexGuard<Nagrs>, host_name: &str) -> Resu
 
 // check service exists. if service does not exists, return Err
 pub fn check_service_exists(
-    nagrs: &mut MutexGuard<Nagrs>,
+    nagios_status: &NagiosStatus,
     host_name: &str,
     service_description: &str,
 ) -> Result<()> {
-    let services = nagrs.find_services(host_name)?;
+    let services = nagios_status.get_host_services(host_name).unwrap_or(vec![]);
     let found = services
         .iter()
         .find(|service| service.service_description == service_description);

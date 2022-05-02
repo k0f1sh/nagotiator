@@ -1,5 +1,5 @@
 use crate::schema::{base::AppResponse, hosts::Hosts};
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use axum::extract::{Extension, Path};
 use regex::Regex;
 use std::sync::Arc;
@@ -16,11 +16,14 @@ pub async fn handle(
 
     let hosts: Hosts;
     {
-        let mut nagrs = state.nagrs.lock().unwrap();
-        hosts = nagrs
-            .find_hosts_regex(&re)?
+        let m = state.cached_state.lock().unwrap();
+        let cached_state = m.as_ref().ok_or(anyhow!("not cached"))?;
+
+        hosts = cached_state
+            .nagios_status
+            .get_hosts_regex(&re)
             .into_iter()
-            .map(|host| host.into())
+            .map(|host| host.clone())
             .collect();
     }
 
