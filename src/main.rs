@@ -41,14 +41,23 @@ async fn main() {
         args.max_cache_sec,
     );
 
-    // first load
-    if let Err(error) = raw_state.load() {
-        println!("failed to load status.dat: {}", error);
-    }
-
-    // TODO tick
-
     let state: Arc<State> = Arc::new(raw_state);
+
+    // load status.dat every max_cache_sec
+    let load_state = state.clone();
+    let load_loop = tokio::task::spawn(async move {
+        let mut interval = tokio::time::interval(std::time::Duration::from_secs(
+            load_state.max_cache_sec as u64,
+        ));
+        loop {
+            interval.tick().await;
+            let result = load_state.load();
+            match result {
+                Ok(_) => println!("load success!"),
+                Err(error) => println!("load faield: {}", error),
+            }
+        }
+    });
 
     let cors = CorsLayer::new()
         .allow_headers(vec![http::header::CONTENT_TYPE])
@@ -123,4 +132,6 @@ async fn main() {
     .serve(app.into_make_service())
     .await
     .unwrap();
+
+    load_loop.await.unwrap();
 }
