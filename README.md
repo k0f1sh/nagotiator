@@ -13,7 +13,7 @@ Nagotiator is a frontend server for nagios.
 ## Usage
 
 ```
-cargo run -- -c NAGIOS_CMD_PATH -s NAGIOS_STATUS_DAT_PATH -m MAX_CACHE_SEC
+cargo run -- -c NAGIOS_CMD_PATH -s NAGIOS_STATUS_DAT_PATH -l LOAD_INTERVAL_SEC
 ```
 
 

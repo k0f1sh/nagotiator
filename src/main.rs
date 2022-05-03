@@ -21,7 +21,7 @@ struct Args {
     status_file_path: String,
 
     #[clap(short, long, default_value_t = 10)]
-    max_cache_sec: usize,
+    load_interval_sec: u64,
 
     #[clap(short, long)]
     bind_address: Option<String>,
@@ -38,17 +38,16 @@ async fn main() {
     let raw_state = State::new(
         &args.command_file_path,
         &args.status_file_path,
-        args.max_cache_sec,
+        args.load_interval_sec,
     );
 
     let state: Arc<State> = Arc::new(raw_state);
 
-    // load status.dat every max_cache_sec
+    // load status.dat every load_interval_sec
     let load_state = state.clone();
     let load_loop = tokio::task::spawn(async move {
-        let mut interval = tokio::time::interval(std::time::Duration::from_secs(
-            load_state.max_cache_sec as u64,
-        ));
+        let mut interval =
+            tokio::time::interval(std::time::Duration::from_secs(load_state.load_interval_sec));
         loop {
             interval.tick().await;
             let result = load_state.load();

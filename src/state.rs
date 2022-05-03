@@ -8,7 +8,7 @@ pub type Nagrs = nagrs::Nagrs<String>;
 
 pub struct State {
     pub nagrs: Nagrs,
-    pub max_cache_sec: usize,
+    pub load_interval_sec: u64,
     pub is_parsing: Mutex<bool>,
     pub cached_state: Mutex<Option<CachedState>>,
 }
@@ -19,10 +19,10 @@ pub struct CachedState {
 }
 
 impl State {
-    pub fn new(command_file_path: &str, status_file_path: &str, max_cache_sec: usize) -> State {
+    pub fn new(command_file_path: &str, status_file_path: &str, load_interval_sec: u64) -> State {
         State {
             nagrs: Nagrs::new(command_file_path.to_string(), status_file_path.to_string()),
-            max_cache_sec,
+            load_interval_sec,
             is_parsing: Mutex::new(false),
             cached_state: Mutex::new(None),
         }
