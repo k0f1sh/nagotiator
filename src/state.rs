@@ -30,6 +30,7 @@ impl State {
 
     pub fn load(&self) -> Result<()> {
         self.parse_start()?;
+        let cached_at = Utc::now();
         // if status.dat is a large file, parse() would take a lot of time.
         let parsed = self.nagrs.parse();
         self.parse_stop();
@@ -37,7 +38,6 @@ impl State {
             Err(error) => Err(error),
             Ok(nagios_status) => {
                 let mut cached_state = self.cached_state.lock().unwrap();
-                let cached_at = Utc::now();
                 *cached_state = Some(CachedState {
                     nagios_status,
                     cached_at,

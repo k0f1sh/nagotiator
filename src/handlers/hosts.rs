@@ -1,4 +1,7 @@
-use crate::schema::{base::AppResponse, hosts::Hosts};
+use crate::schema::{
+    base::{AppResponse, WithCachedAt},
+    hosts::Hosts,
+};
 use anyhow::{anyhow, Result};
 use axum::extract::{Extension, Path};
 use regex::Regex;
@@ -11,10 +14,11 @@ use super::base::result_to_app_response_and_logging;
 pub async fn handle(
     Path(host_name_regex): Path<String>,
     Extension(state): Extension<Arc<State>>,
-) -> Result<Hosts> {
+) -> Result<WithCachedAt<Hosts>> {
     let re = Regex::new(&host_name_regex)?;
 
     let hosts: Hosts;
+    let cached_at;
     {
         let m = state.cached_state.lock().unwrap();
         let cached_state = m.as_ref().ok_or(anyhow!("not cached"))?;
@@ -23,16 +27,20 @@ pub async fn handle(
             .nagios_status
             .get_hosts_regex(&re)
             .into_iter()
-            .map(|host| host.clone())
             .collect();
+
+        cached_at = cached_state.cached_at.clone();
     }
 
-    Ok(hosts)
+    Ok(WithCachedAt {
+        cached_at,
+        result: hosts,
+    })
 }
 
 pub async fn handler(
     host_name_regex: Path<String>,
     extension: Extension<Arc<State>>,
-) -> AppResponse<Hosts> {
+) -> AppResponse<WithCachedAt<Hosts>> {
     result_to_app_response_and_logging(handle(host_name_regex, extension).await)
 }

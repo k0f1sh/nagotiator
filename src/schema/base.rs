@@ -3,6 +3,7 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
+use chrono::{DateTime, Utc};
 use serde::Serialize;
 use thiserror::Error;
 
@@ -35,4 +36,10 @@ impl IntoResponse for AppError {
             }
         }
     }
+}
+
+#[derive(Debug, Serialize)]
+pub struct WithCachedAt<S: Serialize> {
+    pub cached_at: DateTime<Utc>,
+    pub result: S,
 }
