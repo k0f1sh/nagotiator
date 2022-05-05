@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use axum::extract::{Extension, Path};
 use regex::Regex;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 use crate::{
     schema::{
@@ -18,29 +18,28 @@ pub async fn handle(
     Extension(state): Extension<Arc<State>>,
 ) -> Result<WithCachedAt<Services>> {
     let re = Regex::new(&host_name_regex)?;
-    let services_list: Vec<Services>;
+    let services: Services;
     let cached_at;
     {
         let m = state.cached_state.lock().unwrap();
         let cached_state = m.as_ref().ok_or(anyhow!("not cached"))?;
 
-        services_list = cached_state
+        services = cached_state
             .nagios_status
             .get_hosts_regex(&re)
             .into_iter()
             .map(|host| host.host_name)
             .map(|host_name| {
-                cached_state
+                let s = cached_state
                     .nagios_status
                     .get_host_services(host_name.as_str())
-                    .unwrap_or(vec![])
+                    .unwrap_or(vec![]);
+                (host_name, s)
             })
-            .collect::<Vec<Services>>();
+            .collect::<Services>();
 
         cached_at = cached_state.cached_at.clone();
     }
-
-    let services = services_list.into_iter().flatten().collect();
 
     Ok(WithCachedAt {
         cached_at,
