@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use axum::extract::{Extension, Path};
 use regex::Regex;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 use crate::{
     schema::{
