@@ -2,6 +2,8 @@ use axum::{
     http::{self, Method},
     routing::post,
 };
+use chrono::Duration;
+use chrono::Utc;
 use std::sync::Arc;
 
 use axum::{extract::Extension, routing::get, Router};
@@ -45,12 +47,31 @@ async fn main() {
 
     // load status.dat every load_interval_sec
     let load_state = state.clone();
-    std::thread::spawn(move || loop {
-        std::thread::sleep(std::time::Duration::from_secs(load_state.load_interval_sec));
-        let result = load_state.load();
-        match result {
-            Ok(_) => println!("load success!"),
-            Err(error) => println!("load faield: {}", error),
+    std::thread::spawn(move || {
+        let interval_duration = Duration::seconds(load_state.load_interval_sec as i64);
+        let mut last_load_start = Utc::now() - interval_duration;
+        loop {
+            let now = Utc::now();
+            let elapsed = now - last_load_start;
+            if elapsed.num_seconds() < load_state.load_interval_sec as i64 {
+                let sleep_duration = (interval_duration - elapsed)
+                    .to_std()
+                    .unwrap_or(std::time::Duration::from_secs(load_state.load_interval_sec));
+                println!(
+                    "sleep={:#?}, load_interval_sec={}, elapsed={}",
+                    sleep_duration, load_state.load_interval_sec, elapsed
+                );
+                std::thread::sleep(sleep_duration);
+            } else {
+                println!("skip sleep");
+            }
+
+            last_load_start = Utc::now();
+            let result = load_state.load();
+            match result {
+                Ok(_) => println!("load success!"),
+                Err(error) => println!("load faield: {}", error),
+            }
         }
     });
 
