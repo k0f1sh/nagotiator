@@ -45,16 +45,12 @@ async fn main() {
 
     // load status.dat every load_interval_sec
     let load_state = state.clone();
-    let load_loop = tokio::task::spawn(async move {
-        let mut interval =
-            tokio::time::interval(std::time::Duration::from_secs(load_state.load_interval_sec));
-        loop {
-            interval.tick().await;
-            let result = load_state.load();
-            match result {
-                Ok(_) => println!("load success!"),
-                Err(error) => println!("load faield: {}", error),
-            }
+    std::thread::spawn(move || loop {
+        std::thread::sleep(std::time::Duration::from_secs(load_state.load_interval_sec));
+        let result = load_state.load();
+        match result {
+            Ok(_) => println!("load success!"),
+            Err(error) => println!("load faield: {}", error),
         }
     });
 
@@ -131,6 +127,4 @@ async fn main() {
     .serve(app.into_make_service())
     .await
     .unwrap();
-
-    load_loop.await.unwrap();
 }
